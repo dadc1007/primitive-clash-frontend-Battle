@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: ac1aeabcb2b6b0f488873e6ce82988ea
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cavemanPrefab: {fileID: 3532935191937234201, guid: bc022d02781fad348a27a1d8de943e1b, type: 3}
+  - lancerPrefab: {fileID: 6153223390283379517, guid: 7364164797a1d2644af43c33bb049bc6, type: 3}
+  - miniDinoPrefab: {fileID: 2990143816398175107, guid: f643eb293a4c0af4f96774e06dcb64d6, type: 3}
+  - miniDragonPrefab: {fileID: 394955014574903916, guid: 8cdfccf33aa58b9418a0623ad03196ba, type: 3}
+  - prehistoricDragonPrefab: {fileID: 8692428698648263624, guid: eda293e84e4e1d7479a60a8f9afa098d, type: 3}
+  - rockGolemPrefab: {fileID: 3945831962573807510, guid: 1d5e3ccea7c8eb946b87b7fe8667a6b8, type: 3}
+  - pterodactylPrefab: {fileID: 5324907922973062552, guid: 11e59f6516a091f449c220b16deff3de, type: 3}
+  - warriorCavemanPrefab: {fileID: 997286107254682931, guid: 18a0c1eac7daa194093585c1680b5b79, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
