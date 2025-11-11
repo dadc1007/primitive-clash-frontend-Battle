@@ -27,6 +27,47 @@ public class GameClient : MonoBehaviour
         ArenaEntitySpawner spawner = FindFirstObjectByType<ArenaEntitySpawner>();
 
         _conn.On<object>(
+            "JoinedToGame",
+            obj =>
+            {
+                Debug.LogWarning("JoinedToGame recibido");
+
+                if (obj == null)
+                {
+                    Debug.LogWarning("⚠️ JoinedToGame llegó vacío");
+                    return;
+                }
+
+                string json = SerializeIndented(obj);
+
+                try
+                {
+                    JoinedToGameNotification data = JsonUtility.FromJson<JoinedToGameNotification>(
+                        json
+                    );
+
+                    RunOnMainThread(() =>
+                    {
+                        foreach (TowerNotification tower in data.arena.towers)
+                            SpawnAndRegisterTower(spawner, tower);
+
+                        foreach (CardSpawnedNotification entity in data.arena.entities)
+                            SpawnAndRegisterEntity(spawner, entity);
+
+                        var player = data.players.Find(p => p.id == _userId.ToString());
+                        if (player != null)
+                            FindFirstObjectByType<ElixirBarController>()
+                                ?.SetElixir(player.currentElixir);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"💥 Error procesando CardSpawned: {ex}");
+                }
+            }
+        );
+
+        _conn.On<object>(
             "CardSpawned",
             obj =>
             {
@@ -44,22 +85,7 @@ public class GameClient : MonoBehaviour
                         json
                     );
 
-                    RunOnMainThread(() =>
-                    {
-                        GameObject go = spawner?.SpawnEntity(data.cardPlayedId, data.x, data.y);
-                        if (go == null)
-                        {
-                            Debug.LogError(
-                                $"❌ No se pudo instanciar prefab para cardPlayedId={data.cardPlayedId}"
-                            );
-                            return;
-                        }
-
-                        EntityManager.Instance.Register(data.unitId, go);
-                        Debug.Log(
-                            $"✅ Tropa registrada: unitId={data.unitId} ({go.name}) en ({data.x},{data.y})"
-                        );
-                    });
+                    RunOnMainThread(() => SpawnAndRegisterEntity(spawner, data));
                 }
                 catch (Exception ex)
                 {
@@ -82,7 +108,9 @@ public class GameClient : MonoBehaviour
 
                 try
                 {
-                    RefreshHandNotification data = JsonUtility.FromJson<RefreshHandNotification>(json);
+                    RefreshHandNotification data = JsonUtility.FromJson<RefreshHandNotification>(
+                        json
+                    );
 
                     RunOnMainThread(() =>
                     {
@@ -107,6 +135,8 @@ public class GameClient : MonoBehaviour
             obj =>
             {
                 string json = SerializeIndented(obj);
+
+                Debug.Log($"TroopMoved recibido: {obj}");
 
                 try
                 {
@@ -156,15 +186,16 @@ public class GameClient : MonoBehaviour
 
                         EntityManager.Instance.ShowHit(data.targetId);
 
-                        if (EntityManager.Instance.TryGetHealthBar(data.targetId, out var hb))
-                        {
-                            float normalized =
-                                data.maxHealth > 0f ? (float)data.health / data.maxHealth : 0f;
-                            hb.SetHealth(normalized);
-                            Debug.Log(
-                                $"🩸 HealthBar actualizada para {data.targetId} → {normalized:P0}"
-                            );
-                        }
+                        if (
+                            !EntityManager.Instance.TryGetHealthBar(data.targetId, out HealthBar hb)
+                        )
+                            return;
+                        float normalized =
+                            data.maxHealth > 0f ? (float)data.health / data.maxHealth : 0f;
+                        hb.SetHealth(normalized);
+                        Debug.Log(
+                            $"🩸 HealthBar actualizada para {data.targetId} → {normalized:P0}"
+                        );
                     });
                 }
                 catch (Exception ex)
@@ -182,7 +213,9 @@ public class GameClient : MonoBehaviour
 
                 try
                 {
-                    UnitKilledNotificacion data = JsonUtility.FromJson<UnitKilledNotificacion>(json);
+                    UnitKilledNotificacion data = JsonUtility.FromJson<UnitKilledNotificacion>(
+                        json
+                    );
                     RunOnMainThread(() => EntityManager.Instance.Remove(data.targetId));
                 }
                 catch (Exception ex)
@@ -201,7 +234,41 @@ public class GameClient : MonoBehaviour
             }
         );
 
-        _conn.On<EndGameNotification>("EndGame", d => UIManager.Instance.ShowEndGame(d.winnerId));
+        _conn.On<object>(
+            "EndGame",
+            obj =>
+            {
+                string json = SerializeIndented(obj);
+
+                Debug.Log("EndGame del jugador recibida (desde SignalR):\n" + json);
+
+                EndGameNotification data = JsonUtility.FromJson<EndGameNotification>(json);
+
+                RunOnMainThread(() =>
+                {
+                    int ownTowers,
+                        rivalTowers;
+
+                    if (data.winnerId == _userId.ToString())
+                    {
+                        ownTowers = data.towersWinner;
+                        rivalTowers = data.towersLosser;
+                    }
+                    else
+                    {
+                        ownTowers = data.towersLosser;
+                        rivalTowers = data.towersWinner;
+                    }
+
+                    UIManager.Instance.ShowEndGame(
+                        data.winnerId,
+                        _userId.ToString(),
+                        ownTowers,
+                        rivalTowers
+                    );
+                });
+            }
+        );
 
         _conn.On<string>("Error", msg => Debug.LogError("🔴 Error recibido → " + msg));
 
@@ -270,5 +337,35 @@ public class GameClient : MonoBehaviour
         public string name;
         public int x;
         public int y;
+    }
+
+    private void SpawnAndRegisterTower(ArenaEntitySpawner spawner, TowerNotification tower)
+    {
+        GameObject go = spawner?.SpawnEntity(tower.towerTemplateId, tower.y, tower.x);
+        if (go == null)
+        {
+            Debug.LogError($"❌ No se pudo instanciar prefab para TowerId={tower.id}");
+            return;
+        }
+
+        EntityManager.Instance.Register(tower.id, go, tower.health, tower.maxHealth);
+        Debug.Log($"✅ Torre registrada: TowerId={tower.id} ({go.name}) en ({tower.x},{tower.y})");
+    }
+
+    private void SpawnAndRegisterEntity(ArenaEntitySpawner spawner, CardSpawnedNotification entity)
+    {
+        GameObject go = spawner?.SpawnEntity(entity.cardPlayedId, entity.x, entity.y);
+        if (go == null)
+        {
+            Debug.LogError(
+                $"❌ No se pudo instanciar prefab para cardPlayedId={entity.cardPlayedId}"
+            );
+            return;
+        }
+
+        EntityManager.Instance.Register(entity.unitId, go, entity.health, entity.maxHealth);
+        Debug.Log(
+            $"✅ Tropa registrada: unitId={entity.unitId} ({go.name}) en ({entity.x},{entity.y})"
+        );
     }
 }

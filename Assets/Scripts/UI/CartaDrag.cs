@@ -58,14 +58,14 @@ public class CartaDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         Vector2Int gridPos = ConvertUnityToBackend(hitPoint);
         Debug.Log($"[CartaDrag] 🧮 Coordenadas backend = ({gridPos.x},{gridPos.y})");
 
-        if (!PuedeJugarEn(gridPos))
-        {
-            Debug.LogWarning(
-                $"[CartaDrag] ❌ No puedes jugar en ({gridPos.x},{gridPos.y}), está fuera de tu lado."
-            );
-            _rectTransform.anchoredPosition = _startPosition;
-            return;
-        }
+        // if (!PuedeJugarEn(gridPos))
+        // {
+        //     Debug.LogWarning(
+        //         $"[CartaDrag] ❌ No puedes jugar en ({gridPos.x},{gridPos.y}), está fuera de tu lado."
+        //     );
+        //     _rectTransform.anchoredPosition = _startPosition;
+        //     return;
+        // }
 
         Debug.Log(
             $"[CartaDrag] ✅ Posición válida. Enviando SpawnCard({cardId}, {gridPos.x}, {gridPos.y})..."
@@ -87,25 +87,44 @@ public class CartaDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
     private static Vector2Int ConvertUnityToBackend(Vector3 world)
     {
-        const float offsetX = 48f,
-            offsetZ = 41f;
-        const float cellSizeX = 1.1f,
-            cellSizeZ = 0.94f; // 30x18 grid
-
-        int fila = Mathf.Clamp(Mathf.RoundToInt((world.x + offsetX) / cellSizeX), 0, 29);
-        int columna = Mathf.Clamp(Mathf.RoundToInt((world.z - offsetZ) / cellSizeZ), 0, 17);
-        return new Vector2Int(fila, columna);
+        // Usar las MISMAS coordenadas que ArenaEntitySpawner
+        const int BACKEND_ROWS = 30;
+        const int BACKEND_COLS = 18;
+    
+        // Coordenadas base (tropas)
+        const float CORNER_0_0_X = -47.9f;
+        const float CORNER_0_0_Z = 41.79f;
+        const float CORNER_0_17_Z = 57.48f;
+        const float CORNER_29_0_X = -14.98f;
+    
+        float cellSizeX = (CORNER_29_0_X - CORNER_0_0_X) / BACKEND_ROWS;
+        float cellSizeZ = (CORNER_0_17_Z - CORNER_0_0_Z) / (BACKEND_COLS - 1);
+    
+        float deltaX = world.x - CORNER_0_0_X;
+        float deltaZ = world.z - CORNER_0_0_Z;
+        float filaFloat = deltaX / cellSizeX;
+        float columnaFloat = deltaZ / cellSizeZ;
+    
+        // Conversión inversa
+        int fila = Mathf.RoundToInt(filaFloat);
+        int columna = Mathf.RoundToInt(columnaFloat);
+        
+        // Clamp para asegurar que esté dentro de los límites
+        fila = Mathf.Clamp(fila, 0, BACKEND_ROWS - 1);
+        columna = Mathf.Clamp(columna, 0, BACKEND_COLS - 1);
+        
+        return new Vector2Int(columna, fila);
     }
 
-    private bool PuedeJugarEn(Vector2Int gridPos)
-    {
-        if (_gameClient == null)
-            return false;
-
-        bool soyJugadorIzquierda = _gameClient.isLeftSide;
-        // Lado izquierdo: filas 0–14 | Lado derecho: filas 15–29
-        return soyJugadorIzquierda ? gridPos.x < 15 : gridPos.x >= 15;
-    }
+    // private bool PuedeJugarEn(Vector2Int gridPos)
+    // {
+    //     if (_gameClient == null)
+    //         return false;
+    //
+    //     bool soyJugadorIzquierda = _gameClient.isLeftSide;
+    //     // Lado izquierdo: filas 0–14 | Lado derecho: filas 15–29
+    //     return soyJugadorIzquierda ? gridPos.x < 15 : gridPos.x >= 15;
+    // }
 
     private void RegistrarCartaJugada()
     {

@@ -7,10 +7,6 @@ public class HealthBar : MonoBehaviour
     [SerializeField]
     private Image fillImage;
 
-    [Header("Configuración")]
-    [SerializeField]
-    private Vector3 offset = new(0f, 2f, 0f);
-
     private Transform _target;
     private Camera _mainCamera;
 
@@ -28,13 +24,10 @@ public class HealthBar : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_target == null || _mainCamera == null)
+        if (!_target || !_mainCamera)
             return;
 
-        // Seguir a la tropa
-        transform.position = _target.position + offset;
-
-        // Mirar siempre hacia la cámara (solo rota en eje Y si prefieres estilo 2.5D)
+        // Mirar siempre hacia la cámara
         transform.forward = _mainCamera.transform.forward;
     }
 

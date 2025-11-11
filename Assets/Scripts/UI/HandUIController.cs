@@ -19,6 +19,7 @@ public class HandUIController : MonoBehaviour
     private ElixirBarController elixirBar;
 
     private readonly List<PlayerCardNotification> _manoActual = new();
+    private static readonly Dictionary<string, Sprite> spriteCache = new();
     public int ultimoIndiceJugado = -1;
     public string ultimaCartaUsadaId = null;
 
@@ -40,7 +41,6 @@ public class HandUIController : MonoBehaviour
         _manoActual.AddRange(data.hand);
 
         AsignarIdsACartasDrag();
-
         StartCoroutine(RenderHandAsync(data));
     }
 
@@ -55,6 +55,12 @@ public class HandUIController : MonoBehaviour
         {
             loaders.Add(CargarImagen(data.hand[i].imageUrl, slotImages[i]));
             targets.Add(slotImages[i]);
+
+            SlotCartaUI slotUI = slotImages[i].GetComponent<SlotCartaUI>();
+            if (slotUI)
+                slotUI.SetElixirCost(data.hand[i].elixir);
+            else
+                Debug.LogWarning($"⚠️ Slot {slotImages[i].name} no tiene SlotCartaUI asignado.");
         }
 
         if (data.nextCard != null && nextCardImage != null)
@@ -84,10 +90,12 @@ public class HandUIController : MonoBehaviour
 
         foreach (Image img in images)
         {
-            if (img != null && (!img || img.sprite == null)) continue;
+            if (img && (!img || !img.sprite))
+                continue;
 
             RectTransform rt = img.GetComponent<RectTransform>();
-            if (!rt) continue;
+            if (!rt)
+                continue;
             rt.localScale = Vector3.one;
             img.preserveAspect = true;
         }
@@ -108,10 +116,19 @@ public class HandUIController : MonoBehaviour
         if (string.IsNullOrWhiteSpace(url) || !target)
             yield break;
 
+        // Si ya está en caché, usarlo directamente
+        if (spriteCache.TryGetValue(url, out Sprite cachedSprite))
+        {
+            target.sprite = cachedSprite;
+            target.preserveAspect = true;
+            target.color = Color.white;
+            yield break;
+        }
+
+        // Si no está en caché, descárgalo
         using UnityWebRequest www = UnityWebRequestTexture.GetTexture(url);
         yield return www.SendWebRequest();
 
-        RectTransform rt = target.GetComponent<RectTransform>();
         if (www.result == UnityWebRequest.Result.Success)
         {
             Texture2D tex = ((DownloadHandlerTexture)www.downloadHandler).texture;
@@ -120,13 +137,10 @@ public class HandUIController : MonoBehaviour
                 new Rect(0, 0, tex.width, tex.height),
                 Vector2.one * 0.5f
             );
+            spriteCache[url] = sprite;
             target.sprite = sprite;
             target.preserveAspect = true;
             target.color = Color.white;
-            if (rt)
-            {
-                rt.sizeDelta = rt.sizeDelta;
-            }
         }
         else
         {
@@ -151,8 +165,8 @@ public class HandUIController : MonoBehaviour
         if (data?.cardToPut == null || data.nextCard == null)
             return;
 
-        int replacedIndex = ReemplazarCartaJugada(data.cardToPut);
-        ActualizarIdsCartasDrag(replacedIndex);
+        ReemplazarCartaJugada(data.cardToPut);
+        ActualizarIdsCartasDrag();
 
         StartCoroutine(
             RenderHandAsync(
@@ -166,26 +180,25 @@ public class HandUIController : MonoBehaviour
         LimpiarReferencias();
     }
 
-    private int ReemplazarCartaJugada(PlayerCardNotification nuevaCarta)
+    private void ReemplazarCartaJugada(PlayerCardNotification nuevaCarta)
     {
         if (ultimoIndiceJugado >= 0 && ultimoIndiceJugado < _manoActual.Count)
         {
             _manoActual[ultimoIndiceJugado] = nuevaCarta;
-            return ultimoIndiceJugado;
+            return;
         }
 
         int index = _manoActual.FindIndex(c => c.playerCardId == ultimaCartaUsadaId);
         if (index != -1)
         {
             _manoActual[index] = nuevaCarta;
-            return index;
+            return;
         }
 
         _manoActual.Add(nuevaCarta);
-        return -1;
     }
 
-    private void ActualizarIdsCartasDrag(int replacedIndex)
+    private void ActualizarIdsCartasDrag()
     {
         for (int i = 0; i < slotImages.Length && i < _manoActual.Count; i++)
         {
@@ -211,5 +224,30 @@ public class HandUIController : MonoBehaviour
                 return i;
         }
         return -1;
+    }
+
+    private void ActualizarCostoElixir(Transform slotTransform, int elixirCost)
+    {
+        // Buscar el objeto "Elixir/Quantity" dentro del slot
+        Transform elixirTransform = slotTransform.Find("Elixir/Quantity");
+        if (!elixirTransform)
+        {
+            Debug.LogWarning($"⚠️ No se encontró 'Elixir/Quantity' en {slotTransform.name}");
+            return;
+        }
+
+        // Puede ser Text o TextMeshProUGUI
+        Text text = elixirTransform.GetComponent<Text>();
+        if (text)
+        {
+            text.text = elixirCost.ToString();
+            return;
+        }
+
+        TMPro.TextMeshProUGUI tmp = elixirTransform.GetComponent<TMPro.TextMeshProUGUI>();
+        if (tmp)
+        {
+            tmp.text = elixirCost.ToString();
+        }
     }
 }

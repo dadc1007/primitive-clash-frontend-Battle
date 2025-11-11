@@ -21,7 +21,7 @@ public class EntityManager : MonoBehaviour
         Instance = this;
     }
 
-    public void Register(string id, GameObject obj)
+    public void Register(string id, GameObject obj, float health, float maxHealth)
     {
         if (string.IsNullOrEmpty(id) || obj == null)
         {
@@ -47,10 +47,14 @@ public class EntityManager : MonoBehaviour
         HealthBar hb = obj.GetComponentInChildren<HealthBar>();
         if (hb == null)
             return;
+
         hb.Initialize(obj.transform);
-        hb.SetHealth(1f);
+
+        float normalized = maxHealth > 0 ? health / maxHealth : 0f;
+        hb.SetHealth(normalized);
+
         _healthBars[id] = hb;
-        Debug.Log($"🩸 [EntityManager.Register] HealthBar vinculada a id={id}");
+        Debug.Log($"🩸 [EntityManager.Register] HealthBar vinculada a id={id} ({normalized:P0})");
     }
 
     public GameObject Get(string id) =>

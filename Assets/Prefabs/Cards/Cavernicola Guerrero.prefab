@@ -116,7 +116,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthBar
   fillImage: {fileID: 5039824789082927588}
-  offset: {x: 0, y: 2, z: 0}
 --- !u!1 &1127075588331281290
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,6 +288,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: c81fef9e84257564cb6241c381b61931, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c81fef9e84257564cb6241c381b61931, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c81fef9e84257564cb6241c381b61931, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 75
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c81fef9e84257564cb6241c381b61931, type: 3}
       propertyPath: m_LocalPosition.x
       value: -39.563225

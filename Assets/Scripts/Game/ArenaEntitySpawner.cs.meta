@@ -12,6 +12,8 @@ MonoImporter:
   - rockGolemPrefab: {fileID: 3945831962573807510, guid: 1d5e3ccea7c8eb946b87b7fe8667a6b8, type: 3}
   - pterodactylPrefab: {fileID: 5324907922973062552, guid: 11e59f6516a091f449c220b16deff3de, type: 3}
   - warriorCavemanPrefab: {fileID: 997286107254682931, guid: 18a0c1eac7daa194093585c1680b5b79, type: 3}
+  - guardianTower: {fileID: 5051844588071627766, guid: d1a693dcb26d7c045b4c3792b3486035, type: 3}
+  - leaderTower: {fileID: 4162471876600813916, guid: e8ccb075efce985418050276e73afad4, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
