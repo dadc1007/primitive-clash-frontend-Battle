@@ -103,4 +103,12 @@
       console.error("Error parsing args:", err);
     }
   },
+
+  ReturnToLobby: function () {
+    if (window.onReturnToLobby) {
+      window.onReturnToLobby();
+    } else {
+      console.warn("onReturnToLobby callback not registered in React");
+    }
+  },
 });

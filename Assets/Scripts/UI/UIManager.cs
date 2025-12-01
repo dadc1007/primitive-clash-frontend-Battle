@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI resultText;
     [SerializeField] private TextMeshProUGUI ownTowersText;
     [SerializeField] private TextMeshProUGUI rivalTowersText;
+    [SerializeField] private Button backToLobbyButton;
 
     private void Awake()
     {
@@ -29,6 +30,25 @@ public class UIManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         endGamePanel?.SetActive(false); // Asegurar que el panel esté oculto al inicio
+
+        if (backToLobbyButton != null)
+        {
+            backToLobbyButton.onClick.AddListener(OnBackToLobbyClicked);
+        }
+    }
+
+    private void OnBackToLobbyClicked()
+    {
+        GameClient gameClient = FindFirstObjectByType<GameClient>();
+
+        if (gameClient != null)
+        {
+            gameClient.GoBackToLobby();
+        }
+        else
+        {
+            Debug.LogError("❌ No se encontró GameClient en la escena");
+        }
     }
 
     public void ShowEndGame(string winnerId, string localPlayerId, int ownTowers, int rivalTowers)
@@ -45,7 +65,7 @@ public class UIManager : MonoBehaviour
 
         titleText.text = "PARTIDA FINALIZADA";
 
-        Color winColor = new Color(0f, 1f, 0.55f); 
+        Color winColor = new Color(0f, 1f, 0.55f);
         Color loseColor = new Color(1f, 0.25f, 0.25f);
         Color textColor = hasWon ? winColor : loseColor;
 
@@ -63,5 +83,13 @@ public class UIManager : MonoBehaviour
     {
         if (endGamePanel != null)
             endGamePanel.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (backToLobbyButton != null)
+        {
+            backToLobbyButton.onClick.RemoveListener(OnBackToLobbyClicked);
+        }
     }
 }

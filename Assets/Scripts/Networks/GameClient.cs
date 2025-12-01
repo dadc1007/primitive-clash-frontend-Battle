@@ -26,6 +26,9 @@ public class GameClient : MonoBehaviour
 
     [DllImport("__Internal")]
     private static extern void InvokeServer(string methodName, string argsJson);
+
+    [DllImport("__Internal")]
+    private static extern void ReturnToLobby();
 #endif
 
     private void Awake()
@@ -104,6 +107,15 @@ public class GameClient : MonoBehaviour
         await _conn.InvokeAsync("JoinGame", _sessionId);
     }
 #endif
+
+    public void GoBackToLobby()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        ReturnToLobby();
+#else
+        Debug.Log("Regresando al lobby (solo funciona en WebGL)");
+#endif
+    }
 
     // Métodos llamados desde JS o C#
     public void JoinedToGame(object obj)
@@ -292,7 +304,6 @@ public class GameClient : MonoBehaviour
     public void NewElixir(string valueStr)
     {
         float value = float.Parse(valueStr);
-        Debug.Log($"⚡ NewElixir recibido: {value}");
         RunOnMainThread(() => FindFirstObjectByType<ElixirBarController>().SetElixir(value));
     }
 
