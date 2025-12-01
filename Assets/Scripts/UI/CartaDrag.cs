@@ -25,10 +25,6 @@ public class CartaDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
         _gameClient = FindFirstObjectByType<GameClient>();
         _handUI = FindFirstObjectByType<HandUIController>();
-
-        Debug.Log(
-            $"[CartaDrag] 🧩 Inicializado para carta {name} (cardId={cardId}). Canvas: {_canvas != null}, GameClient: {_gameClient != null}"
-        );
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -45,7 +41,6 @@ public class CartaDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     public void OnEndDrag(PointerEventData eventData)
     {
         _canvasGroup.blocksRaycasts = true;
-        Debug.Log($"[CartaDrag] 🛑 Fin de drag de '{name}'. Realizando raycast...");
 
         if (!TryGetWorldPointFromMouse(out Vector3 hitPoint))
         {
@@ -54,22 +49,7 @@ public class CartaDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
             return;
         }
 
-        Debug.Log($"[CartaDrag] ☄️ Raycast hit en {hitPoint}");
         Vector2Int gridPos = ConvertUnityToBackend(hitPoint);
-        Debug.Log($"[CartaDrag] 🧮 Coordenadas backend = ({gridPos.x},{gridPos.y})");
-
-        // if (!PuedeJugarEn(gridPos))
-        // {
-        //     Debug.LogWarning(
-        //         $"[CartaDrag] ❌ No puedes jugar en ({gridPos.x},{gridPos.y}), está fuera de tu lado."
-        //     );
-        //     _rectTransform.anchoredPosition = _startPosition;
-        //     return;
-        // }
-
-        Debug.Log(
-            $"[CartaDrag] ✅ Posición válida. Enviando SpawnCard({cardId}, {gridPos.x}, {gridPos.y})..."
-        );
 
         // Guarda la carta usada antes de enviar
         RegistrarCartaJugada();
@@ -145,6 +125,5 @@ public class CartaDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
         _handUI.ultimoIndiceJugado = index;
         _handUI.ultimaCartaUsadaId = cardId.ToString();
-        Debug.Log($"[CartaDrag] 💾 Guardado índice jugado={index}, id={cardId}");
     }
 }

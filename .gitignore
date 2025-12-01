@@ -15,6 +15,10 @@ MemoryCaptures/
 SysCache/
 *.stackdump
 
+# --- Archivos de recuperación de Unity ---
+Assets/_Recovery/
+*/_Recovery/
+
 # --- Archivos de cache / compilación ---
 *.pidb
 *.suo

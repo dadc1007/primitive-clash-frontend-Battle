@@ -13,12 +13,14 @@ namespace Networks
         public string hubUrl;
         public string sessionId;
         public string userId;
+        public string testToken;
         public bool connectOnStart = true;
 
         public void SetConnectionData(string data)
         {
             string[] args = data.Split('|');
-            if (args.Length < 3)
+
+            if (args.Length < 4)
             {
                 Debug.LogError($"⚠️ Datos inválidos recibidos desde React: {data}");
                 return;
@@ -26,13 +28,10 @@ namespace Networks
 
             string session = args[0];
             string user = args[1];
-            string hub = args[2];
+            string token = args[2];
+            string hub = args[3];
 
-            Debug.Log(
-                $"✅ Datos recibidos desde React -> Session:{session}, User:{user}, Hub:{hub}"
-            );
-
-            gameClient.Connect(new Guid(session), new Guid(user), hub);
+            gameClient.Connect(new Guid(session), new Guid(user), token, hub);
         }
 
         private void Start()
@@ -40,10 +39,7 @@ namespace Networks
 #if UNITY_EDITOR
             if (!connectOnStart)
                 return;
-            Debug.Log($"[DEBUG] Conectando automáticamente a {hubUrl}");
-            gameClient.Connect(new Guid(sessionId), new Guid(userId), hubUrl);
-#else
-            Debug.Log("Esperando parámetros desde React...");
+            gameClient.Connect(new Guid(sessionId), new Guid(userId), testToken, hubUrl);
 #endif
         }
     }

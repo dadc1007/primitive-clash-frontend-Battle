@@ -2169,8 +2169,9 @@ MonoBehaviour:
   gameClient: {fileID: 788922090}
   arenaSpawner: {fileID: 526925430}
   hubUrl: http://localhost:5247/hubs/game
-  sessionId: bf5f8725-a0d2-4703-96e4-1c927c964fa5
-  userId: b62e7ff4-65d6-4d49-b0ca-cddc9a9ded03
+  sessionId: 7391602c-7fc9-4efb-8a52-afeddf24df15
+  userId: 00000000-0000-0000-c43c-9eafa2519c2f
+  testToken: 
   connectOnStart: 1
 --- !u!114 &788922090
 MonoBehaviour:
@@ -2184,7 +2185,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3232de0a478734881b25353c4cfdcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameClient
-  isLeftSide: 1
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

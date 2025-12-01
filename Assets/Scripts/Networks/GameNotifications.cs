@@ -135,3 +135,20 @@ public enum TowerType
     Leader,
     Guardian,
 }
+
+[Serializable]
+public class JoinGameData
+{
+    public string sessionId;
+    public string userId;
+}
+
+[Serializable]
+public class SpawnCardData
+{
+    public string sessionId;
+    public string userId;
+    public string cardId;
+    public int x;
+    public int y;
+}

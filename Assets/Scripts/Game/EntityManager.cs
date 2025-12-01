@@ -39,22 +39,15 @@ public class EntityManager : MonoBehaviour
             return;
         }
 
-        Debug.Log(
-            $"🧱 [EntityManager.Register] Registrada entidad id={id}, name={obj.name}, pos={obj.transform.position}. Total={_entities.Count}"
-        );
-
         // Inicializar HealthBar si existe
         HealthBar hb = obj.GetComponentInChildren<HealthBar>();
         if (hb == null)
             return;
 
         hb.Initialize(obj.transform);
-
         float normalized = maxHealth > 0 ? health / maxHealth : 0f;
         hb.SetHealth(normalized);
-
         _healthBars[id] = hb;
-        Debug.Log($"🩸 [EntityManager.Register] HealthBar vinculada a id={id} ({normalized:P0})");
     }
 
     public GameObject Get(string id) =>
@@ -116,7 +109,6 @@ public class EntityManager : MonoBehaviour
             return;
         renderer.material.color = Color.red;
         StartCoroutine(RestoreColor(renderer));
-        Debug.Log($"💥 [EntityManager.ShowHit] Efecto de daño aplicado en id={id}");
     }
 
     private static IEnumerator RestoreColor(Renderer renderer)
@@ -134,25 +126,16 @@ public class EntityManager : MonoBehaviour
             return;
         }
 
-        Debug.Log(
-            $"🗑️ [EntityManager.Remove] Eliminando tropa id={id}, nombre={obj.name}, pos={obj.transform.position}"
-        );
-
         // HealthBar
         if (_healthBars.TryGetValue(id, out var hb))
         {
             if (hb != null)
                 Destroy(hb.gameObject);
             _healthBars.Remove(id);
-            Debug.Log($"🩸 [EntityManager.Remove] HealthBar eliminada para id={id}");
         }
 
         Destroy(obj);
         _entities.Remove(id);
-
-        Debug.Log(
-            $"✅ [EntityManager.Remove] Tropa eliminada correctamente. Total restante: {_entities.Count}"
-        );
     }
 
     public void ClearAll()
@@ -168,7 +151,5 @@ public class EntityManager : MonoBehaviour
             Destroy(hb.gameObject);
         }
         _healthBars.Clear();
-
-        Debug.Log("[EntityManager.ClearAll] Todas las entidades y healthbars eliminadas.");
     }
 }

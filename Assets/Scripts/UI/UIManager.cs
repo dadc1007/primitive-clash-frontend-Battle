@@ -57,8 +57,6 @@ public class UIManager : MonoBehaviour
 
         if (background != null)
             background.color = new Color(0f, 0f, 0f, 0.7f);
-
-        Debug.Log($"[UIManager] Panel fin de juego → Ganador: {winnerId} | Tú: {localPlayerId}");
     }
 
     public void HideEndGame()

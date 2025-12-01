@@ -93,7 +93,6 @@ public class ArenaEntitySpawner : MonoBehaviour
             instance.transform.Rotate(0f, 180f, 0f);
         }
 
-        Debug.Log($"✅ Spawned '{prefab.name}' (ID={id}) en {instance.transform.position}");
         return instance;
     }
 
