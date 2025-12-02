@@ -95,9 +95,17 @@ public enum GameState
 public class PlayerStateNotification
 {
     public string id;
+    public string name;
+    public ArenaPosition arenaPosition;
     public bool isConnected;
     public string connectionId;
     public float currentElixir;
+}
+
+public enum ArenaPosition
+{
+    Top,
+    Bottom,
 }
 
 [Serializable]

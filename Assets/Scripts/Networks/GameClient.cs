@@ -151,6 +151,23 @@ public class GameClient : MonoBehaviour
                 {
                     Debug.LogWarning($"⚠️ No se encontró jugador con ID: {_userId}");
                 }
+
+                // Actualizar nombres de jugadores según posición
+                PlayerNames playerNamesUI = FindFirstObjectByType<PlayerNames>();
+                if (playerNamesUI != null && data.players.Count >= 2)
+                {
+                    PlayerStateNotification topPlayer = data.players.Find(p => p.arenaPosition == ArenaPosition.Top);
+                    PlayerStateNotification bottomPlayer = data.players.Find(p => p.arenaPosition == ArenaPosition.Bottom);
+
+                    string topName = topPlayer != null ? topPlayer.name : "Jugador 1";
+                    string bottomName = bottomPlayer != null ? bottomPlayer.name : "Jugador 2";
+
+                    playerNamesUI.SetPlayerNames(topName, bottomName);
+                }
+                else if (playerNamesUI == null)
+                {
+                    Debug.LogWarning("⚠️ No se encontró PlayerNames en la escena");
+                }
             });
         }
         catch (Exception ex)

@@ -31,18 +31,15 @@ public class ElixirBarController : MonoBehaviour
     {
         _elixirActual = Mathf.Clamp(valor, 0f, elixirMax);
         int elixirEntero = Mathf.FloorToInt(_elixirActual);
-        Debug.Log($"⚡ SetElixir llamado: valor={valor}, clamped={_elixirActual}, entero={elixirEntero}");
 
         // Solo actualizar si el número entero cambió
         if (elixirEntero == _ultimoElixirEntero)
         {
-            Debug.Log($"⏭️ Elixir sin cambios ({elixirEntero}), saltando actualización UI");
             return;
         }
 
         _ultimoElixirEntero = elixirEntero;
         float porcentaje = _elixirActual / elixirMax;
-        Debug.Log($"📊 Actualizando UI: porcentaje={porcentaje:F2}, texto='{elixirEntero}/{(int)elixirMax}'");
 
         if (relleno)
             relleno.fillAmount = porcentaje;
